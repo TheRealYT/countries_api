@@ -8,6 +8,13 @@ export default function WorldView() {
   const [selected, setSelected] = useState(null);
   const [transitionDuration, setTransitionDuration] = useState(300);
   const started = useRef(false);
+  const [width, setWidth] = useState();
+  const [height, setHeight] = useState();
+
+  const onResize = () => {
+    setWidth(document.body.offsetWidth);
+    setHeight(document.body.offsetHeight);
+  };
 
   useEffect(() => {
     fetch('/datasets/ne_110m_admin_0_countries.geojson').then(res => res.json())
@@ -40,8 +47,16 @@ export default function WorldView() {
       });
   }, []);
 
+  useEffect(() => {
+    addEventListener('resize', onResize);
+
+    return () => removeEventListener('resize', onResize);
+  }, []);
+
   return <Globe
     ref={globeEl}
+    width={width}
+    height={height}
     globeImageUrl="/earth-dark.jpg"
     polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
     polygonAltitude={altitude}
