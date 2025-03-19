@@ -5,7 +5,7 @@ import PopupView from './PopupView.jsx';
 export default function WorldView() {
   const globeEl = useRef(null);
   const [countries, setCountries] = useState({features: []});
-  const [altitude, setAltitude] = useState(0.1);
+  const [altitude, setAltitude] = useState(0.01);
   const [selected, setSelected] = useState(null);
   const [transitionDuration, setTransitionDuration] = useState(300);
   const started = useRef(false);
@@ -35,7 +35,7 @@ export default function WorldView() {
           const lng = (bbox[0] + bbox[2]) / 2;
 
           setTimeout(() => {
-            setAltitude(0.1);
+            setAltitude(0.01);
             globeEl.current.pointOfView({altitude: 1, lat, lng}, MOVE_DURATION); // return smoothly
 
             setTimeout(() => {
@@ -62,10 +62,11 @@ export default function WorldView() {
         ref={globeEl}
         width={width}
         height={height}
-        globeImageUrl="/earth-dark.jpg"
+        globeImageUrl="/earth-day.jpg"
+        backgroundImageUrl='/night-sky.png'
         polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
         polygonAltitude={altitude}
-        polygonCapColor={(p) => p === selected ? 'rgba(108,177,202,0.6)' : 'rgba(104,200,105,0.6)'}
+        polygonCapColor={(p) => p === selected ? 'rgba(64,166,85,0.8)' : 'rgba(104,200,105,0.4)'}
         polygonStrokeColor={() => 'rgb(44,44,44)'}
         polygonSideColor={() => 'rgba(0, 100, 0, 0.15)'}
         polygonLabel={(v) => {
@@ -79,7 +80,7 @@ export default function WorldView() {
           if (!started.current)
             return;
 
-          setAltitude(() => (p) => poly === p ? 0.2 : 0.1);
+          setAltitude(() => (p) => poly === p ? 0.1 : 0.01);
           setSelected(poly);
           globeEl.current.pointOfView({lat, lng}, 2000); // move to target country
         }}
