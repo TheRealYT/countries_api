@@ -1,5 +1,7 @@
+import WorldView from './components/WorldView.jsx';
+
 function App() {
-  return <p className="text-blue-500">Hello</p>
+  return <WorldView/>;
 }
 
 export default App;
