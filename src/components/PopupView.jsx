@@ -10,14 +10,14 @@ export default function PopupView({country, isOpen = false, hidden}) {
   return (
     <div
       hidden={hidden}
-      className={'fixed z-10 left-8 bottom-0 w-96 bg-white text-black rounded-t-md shadow-md transition-[height] ' + (open ? 'h-[calc(100%-2rem)]' : 'h-14')}>
+      className={'fixed z-10 left-8 max-lg:left-2 bottom-0 w-92 max-lg:w-[calc(100%-1rem)] border bg-[#101020a8] backdrop-blur-md text-white border-black rounded-t-md shadow-md transition-[height] ' + (open ? 'h-[calc(100%-2rem)]' : 'h-14')}>
       <nav onClick={() => setOpen(!open)}
-           className="p-4 flex rounded-t-md bg-gray-200 hover:bg-gray-300 cursor-pointer">
+           className="p-4 flex rounded-t-md border-b border-black hover:bg-gray-800 cursor-pointer">
         <p>About</p>
 
         <div className="ml-auto"/>
 
-        <button>{open ? '⮟' : '⮝'}</button>
+        <button className="px-1">{open ? '⮟' : '⮝'}</button>
       </nav>
 
       <main className="p-4">
