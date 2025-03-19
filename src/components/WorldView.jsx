@@ -1,5 +1,6 @@
 import {useEffect, useRef, useState} from 'react';
 import Globe from 'react-globe.gl';
+import PopupView from './PopupView.jsx';
 
 export default function WorldView() {
   const globeEl = useRef(null);
@@ -53,30 +54,35 @@ export default function WorldView() {
     return () => removeEventListener('resize', onResize);
   }, []);
 
-  return <Globe
-    ref={globeEl}
-    width={width}
-    height={height}
-    globeImageUrl="/earth-dark.jpg"
-    polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
-    polygonAltitude={altitude}
-    polygonCapColor={(p) => p === selected ? 'rgba(108,177,202,0.6)' : 'rgba(104,200,105,0.6)'}
-    polygonStrokeColor={() => 'rgb(44,44,44)'}
-    polygonSideColor={() => 'rgba(0, 100, 0, 0.15)'}
-    polygonLabel={(v) => {
-      if (!started.current)
-        return;
+  return (
+    <>
+      <PopupView isOpen={!!selected} country={selected?.properties.ADMIN} hidden={!started.current}/>
 
-      return <b>{v.properties.ADMIN} ({v.properties.ISO_A2})</b>;
-    }}
-    polygonsTransitionDuration={transitionDuration}
-    onPolygonClick={(poly, _, {lat, lng}) => {
-      if (!started.current)
-        return;
+      <Globe
+        ref={globeEl}
+        width={width}
+        height={height}
+        globeImageUrl="/earth-dark.jpg"
+        polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
+        polygonAltitude={altitude}
+        polygonCapColor={(p) => p === selected ? 'rgba(108,177,202,0.6)' : 'rgba(104,200,105,0.6)'}
+        polygonStrokeColor={() => 'rgb(44,44,44)'}
+        polygonSideColor={() => 'rgba(0, 100, 0, 0.15)'}
+        polygonLabel={(v) => {
+          if (!started.current)
+            return;
 
-      setAltitude(() => (p) => poly === p ? 0.2 : 0.1);
-      setSelected(poly);
-      globeEl.current.pointOfView({lat, lng}, 2000); // move to target country
-    }}
-  />;
+          return <b>{v.properties.ADMIN} ({v.properties.ISO_A2})</b>;
+        }}
+        polygonsTransitionDuration={transitionDuration}
+        onPolygonClick={(poly, _, {lat, lng}) => {
+          if (!started.current)
+            return;
+
+          setAltitude(() => (p) => poly === p ? 0.2 : 0.1);
+          setSelected(poly);
+          globeEl.current.pointOfView({lat, lng}, 2000); // move to target country
+        }}
+      />
+    </>);
 }
