@@ -56,32 +56,34 @@ export default function WorldView() {
 
   return (
     <>
-      <PopupView isOpen={!!selected} country={selected?.properties.ADMIN} hidden={!started.current}/>
+      <PopupView goTo={({lat, lng}) => globeEl.current.pointOfView({lat, lng, altitude: 1}, 2000)} isOpen={!!selected}
+                 country={selected ? {data: selected.poly.properties, coords: selected.coords} : null}
+                 hidden={!started.current}/>
 
       <Globe
         ref={globeEl}
         width={width}
         height={height}
         globeImageUrl="/earth-day.jpg"
-        backgroundImageUrl='/night-sky.png'
+        backgroundImageUrl="/night-sky.png"
         polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
         polygonAltitude={altitude}
-        polygonCapColor={(p) => p === selected ? 'rgba(64,166,85,0.8)' : 'rgba(104,200,105,0.4)'}
+        polygonCapColor={(p) => p === selected?.poly ? 'rgba(64,166,85,0.8)' : 'rgba(104,200,105,0.4)'}
         polygonStrokeColor={() => 'rgb(44,44,44)'}
         polygonSideColor={() => 'rgba(0, 100, 0, 0.15)'}
         polygonLabel={(v) => {
           if (!started.current)
             return;
 
-          return <b>{v.properties.ADMIN} ({v.properties.ISO_A2})</b>;
+          return <b>{v.properties.ADMIN} ({v.properties.WB_A2})</b>;
         }}
         polygonsTransitionDuration={transitionDuration}
-        onPolygonClick={(poly, _, {lat, lng}) => {
+        onPolygonClick={(poly, _, {lat, lng, altitude}) => {
           if (!started.current)
             return;
 
           setAltitude(() => (p) => poly === p ? 0.1 : 0.01);
-          setSelected(poly);
+          setSelected({poly, coords: {lat, lng, altitude}});
           globeEl.current.pointOfView({lat, lng}, 2000); // move to target country
         }}
       />
