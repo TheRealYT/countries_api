@@ -1,7 +1,7 @@
-import {useCallback, useEffect, useRef, useState} from 'react';
+import {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react';
 import Globe from 'react-globe.gl';
 
-export default function WorldView() {
+const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
   const globeEl = useRef(null);
   const [countries, setCountries] = useState({features: []});
   const [altitude, setAltitude] = useState(0.01);
@@ -10,7 +10,7 @@ export default function WorldView() {
   const started = useRef(false);
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
-  const parent = useRef(null);
+  const parent = useRef(document.getElementById('root'));
 
   const getWidth = () => parent.current?.offsetWidth;
 
@@ -29,31 +29,45 @@ export default function WorldView() {
     globeEl.current.pointOfView(coords, 2000); // move to target country
   };
 
-  const search = (q) => {
-    if (q === '')
-      return [];
-
-    q = q.toLowerCase();
-    const keys = ['ADMIN', 'ADM0_A3', 'BRK_A3', 'FORMAL_EN', 'CONTINENT', 'SUBREGION', 'REGION_WB'];
-
-    return countries.features.filter(poly => {
-      const {properties} = poly;
-
-      if (properties.ISO_A2 === 'AQ') // Antarctica
-        return;
-
-      for (const key of keys)
-        if (properties[key]?.toLowerCase().includes(q))
-          return true;
-
-      return false;
-    });
-  };
-
   const onResize = useCallback(() => {
     setWidth(getWidth());
     setHeight(getHeight());
   }, []);
+
+  useImperativeHandle(ref, () => ({
+    resize: onResize,
+
+    search(q) {
+      if (q === '')
+        return [];
+
+      q = q.toLowerCase();
+      const keys = ['ADMIN', 'ADM0_A3', 'BRK_A3', 'FORMAL_EN', 'CONTINENT', 'SUBREGION', 'REGION_WB'];
+
+      return countries.features.filter(poly => {
+        const {properties} = poly;
+
+        if (properties.ISO_A2 === 'AQ') // Antarctica
+          return;
+
+        for (const key of keys)
+          if (properties[key]?.toLowerCase().includes(q))
+            return true;
+
+        return false;
+      });
+    },
+
+    goTo({lat, lng}) {
+      return globeEl.current.pointOfView({lat, lng, altitude: 1}, 2000);
+    },
+
+    select,
+
+    get country() {
+      return selected ? {data: selected.poly.properties, coords: selected.coords} : null;
+    },
+  }));
 
   useEffect(() => {
     onResize();
@@ -90,6 +104,7 @@ export default function WorldView() {
               // set started after all animations
               started.current = true;
               setTransitionDuration(300);
+              onAnimationEnd && onAnimationEnd();
             }, MOVE_DURATION);
           }, duration + 500);
         }, 1000);
@@ -97,14 +112,7 @@ export default function WorldView() {
   }, []);
 
   return (
-    <div ref={parent} className="flex-1 bg-background">
-
-      {/*<PopupView select={select} search={search}
-                 goTo={({lat, lng}) => globeEl.current.pointOfView({lat, lng, altitude: 1}, 2000)}
-                 isOpen={!!selected}
-                 country={selected ? {data: selected.poly.properties, coords: selected.coords} : null}
-                 hidden={!started.current}/>*/}
-
+    <>
       <Globe
         ref={globeEl}
         width={width}
@@ -130,5 +138,7 @@ export default function WorldView() {
           select(poly, {lat, lng});
         }}
       />
-    </div>);
-}
+    </>);
+});
+
+export default WorldView;
