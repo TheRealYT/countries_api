@@ -1,7 +1,5 @@
-body {
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  left: 0;
-  top: 0;
+@import "tailwindcss";
+
+#root {
+  @apply fixed left-0 top-0 size-full flex flex-col;
 }

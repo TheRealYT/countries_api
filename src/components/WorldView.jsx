@@ -1,6 +1,5 @@
-import {useEffect, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import Globe from 'react-globe.gl';
-import PopupView from './PopupView.jsx';
 
 export default function WorldView() {
   const globeEl = useRef(null);
@@ -9,8 +8,13 @@ export default function WorldView() {
   const [selected, setSelected] = useState(null);
   const [transitionDuration, setTransitionDuration] = useState(300);
   const started = useRef(false);
-  const [width, setWidth] = useState();
-  const [height, setHeight] = useState();
+  const [width, setWidth] = useState(0);
+  const [height, setHeight] = useState(0);
+  const parent = useRef(null);
+
+  const getWidth = () => parent.current?.offsetWidth;
+
+  const getHeight = () => parent.current?.offsetHeight;
 
   const select = (poly, coords = null) => {
     if (coords == null) {
@@ -46,10 +50,20 @@ export default function WorldView() {
     });
   };
 
-  const onResize = () => {
-    setWidth(document.body.offsetWidth);
-    setHeight(document.body.offsetHeight);
-  };
+  const onResize = useCallback(() => {
+    setWidth(getWidth());
+    setHeight(getHeight());
+  }, []);
+
+  useEffect(() => {
+    onResize();
+  }, [onResize]);
+
+  useEffect(() => {
+    addEventListener('resize', onResize);
+
+    return () => removeEventListener('resize', onResize);
+  }, [onResize]);
 
   useEffect(() => {
     fetch('/datasets/ne_110m_admin_0_countries.geojson').then(res => res.json())
@@ -82,19 +96,14 @@ export default function WorldView() {
       });
   }, []);
 
-  useEffect(() => {
-    addEventListener('resize', onResize);
-
-    return () => removeEventListener('resize', onResize);
-  }, []);
-
   return (
-    <>
-      <PopupView select={select} search={search}
+    <div ref={parent} className="flex-1 bg-background">
+
+      {/*<PopupView select={select} search={search}
                  goTo={({lat, lng}) => globeEl.current.pointOfView({lat, lng, altitude: 1}, 2000)}
                  isOpen={!!selected}
                  country={selected ? {data: selected.poly.properties, coords: selected.coords} : null}
-                 hidden={!started.current}/>
+                 hidden={!started.current}/>*/}
 
       <Globe
         ref={globeEl}
@@ -105,7 +114,7 @@ export default function WorldView() {
         polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
         polygonAltitude={altitude}
         polygonCapColor={(p) => p === selected?.poly ? 'rgba(64,166,85,0.8)' : 'rgba(104,200,105,0.4)'}
-        polygonStrokeColor={() => 'rgb(44,44,44)'}
+        polygonStrokeColor={(p) => p === selected?.poly ? 'rgb(255,0,0)' : 'rgb(44,44,44)'}
         polygonSideColor={() => 'rgba(0, 100, 0, 0.15)'}
         polygonLabel={(v) => {
           if (!started.current)
@@ -121,5 +130,5 @@ export default function WorldView() {
           select(poly, {lat, lng});
         }}
       />
-    </>);
+    </div>);
 }
