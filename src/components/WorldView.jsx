@@ -1,6 +1,11 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import Globe from 'react-globe.gl';
 
+const markerSvg = `<svg viewBox="-4 0 36 36">
+    <path fill="currentColor" d="M14,0 C21.732,0 28,5.641 28,12.6 C28,23.963 14,36 14,36 C14,36 0,24.064 0,12.6 C0,5.641 6.268,0 14,0 Z"></path>
+    <circle fill="black" cx="14" cy="14" r="7"></circle>
+  </svg>`;
+
 export default function WorldView({onCountryChange, onAnimationEnd, ref}) {
   const globeEl = useRef(null);
   const [countries, setCountries] = useState({features: []});
@@ -12,6 +17,7 @@ export default function WorldView({onCountryChange, onAnimationEnd, ref}) {
   const [width, setWidth] = useState(0);
   const [height, setHeight] = useState(0);
   const parent = useRef(document.getElementById('root'));
+  const [markers, setMarkers] = useState([]);
 
   const getWidth = () => parent.current?.offsetWidth;
 
@@ -28,7 +34,7 @@ export default function WorldView({onCountryChange, onAnimationEnd, ref}) {
     if (closerView)
       coords.altitude = 1;
 
-    setAltitude(() => (p) => poly === p ? 0.1 : 0.01);
+    setAltitude(() => (p) => poly === p ? 0.03 : 0.01);
     setSelected({poly, coords});
     globeEl.current.pointOfView(coords, 2000); // move to target country
   };
@@ -76,6 +82,8 @@ export default function WorldView({onCountryChange, onAnimationEnd, ref}) {
       },
 
       select,
+
+      setMarkers,
     };
   });
 
@@ -126,6 +134,20 @@ export default function WorldView({onCountryChange, onAnimationEnd, ref}) {
         height={height}
         globeImageUrl="/earth-day.jpg"
         backgroundImageUrl="/night-sky.png"
+        htmlElementsData={markers}
+        htmlElement={d => {
+          const el = document.createElement('div');
+          el.innerHTML = markerSvg;
+          el.style.color = d.color;
+          el.style.width = `${d.size}px`;
+          el.style.transition = 'opacity 250ms';
+
+          el.style['pointer-events'] = 'auto';
+          el.style.cursor = 'pointer';
+          el.onclick = () => console.info(d);
+          return el;
+        }}
+        htmlElementVisibilityModifier={(el, isVisible) => el.style.opacity = isVisible ? 1 : 0}
         polygonsData={countries.features.filter(d => d.properties.ISO_A2 !== 'AQ')}
         polygonAltitude={altitude}
         polygonCapColor={(p) => p === selected?.poly ? 'rgba(64,166,85,0.8)' : 'rgba(104,200,105,0.4)'}
