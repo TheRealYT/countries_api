@@ -1,11 +1,12 @@
-import {forwardRef, useCallback, useEffect, useImperativeHandle, useRef, useState} from 'react';
+import {useCallback, useEffect, useRef, useState} from 'react';
 import Globe from 'react-globe.gl';
 
-const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
+export default function WorldView({onAnimationEnd, ref}) {
   const globeEl = useRef(null);
   const [countries, setCountries] = useState({features: []});
   const [altitude, setAltitude] = useState(0.01);
   const [selected, setSelected] = useState(null);
+  const selectedRef = useRef(selected);
   const [transitionDuration, setTransitionDuration] = useState(300);
   const started = useRef(false);
   const [width, setWidth] = useState(0);
@@ -37,49 +38,53 @@ const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
     setHeight(getHeight());
   }, []);
 
-  useImperativeHandle(ref, () => ({
-    resize: onResize,
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
 
-    search(q, keys = ['ADMIN', 'ADM0_A3', 'BRK_A3', 'FORMAL_EN', 'CONTINENT', 'SUBREGION', 'REGION_WB']) {
-      if (q === '')
-        return [];
+  useEffect(() => {
+    ref.current = {
+      resize: onResize,
 
-      q = q.toLowerCase();
+      search(q, keys = ['ADMIN', 'ADM0_A3', 'BRK_A3', 'FORMAL_EN', 'CONTINENT', 'SUBREGION', 'REGION_WB']) {
+        if (q === '')
+          return [];
 
-      return countries.features.filter(poly => {
-        const {properties} = poly;
+        q = q.toLowerCase();
 
-        if (properties.ISO_A2 === 'AQ') // Antarctica
-          return;
+        return countries.features.filter(poly => {
+          const {properties} = poly;
 
-        for (const key of keys)
-          if (properties[key]?.toLowerCase().includes(q))
-            return true;
+          if (properties.ISO_A2 === 'AQ') // Antarctica
+            return;
 
-        return false;
-      });
-    },
+          for (const key of keys)
+            if (properties[key]?.toLowerCase().includes(q))
+              return true;
 
-    moveCloser() {
-      globeEl.current.pointOfView({...selected.coords, altitude: 1}, 2000);
-    },
+          return false;
+        });
+      },
 
-    select,
+      moveCloser() {
+        if (selectedRef.current)
+          globeEl.current.pointOfView({...selectedRef.current.coords, altitude: 1}, 2000);
+      },
 
-    get country() {
-      return selected ? {data: selected.poly.properties, coords: selected.coords} : null;
-    },
-  }));
+      select,
+
+      get country() {
+        return selectedRef.current ? {data: selectedRef.current.poly.properties, coords: selectedRef.current.coords} : null;
+      },
+    };
+  });
 
   useEffect(() => {
     onResize();
-  }, [onResize]);
-
-  useEffect(() => {
     addEventListener('resize', onResize);
 
     return () => removeEventListener('resize', onResize);
-  }, [onResize]);
+  });
 
   useEffect(() => {
     fetch('/datasets/ne_110m_admin_0_countries.geojson').then(res => res.json())
@@ -141,6 +146,4 @@ const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
         }}
       />
     </>);
-});
-
-export default WorldView;
+}
