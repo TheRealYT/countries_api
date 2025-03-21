@@ -11,6 +11,8 @@ function App() {
   const client = new QueryClient();
   const globe = useRef({});
   const [show, setShow] = useState(false);
+  const [ready, setReady] = useState(false);
+  const [country, setCountry] = useState(null);
 
   const api = {
     toggleUi() {
@@ -21,15 +23,20 @@ function App() {
     moveCloser: globe.current.moveCloser,
   };
 
+  const onCountryChange = (newValue) => {
+    setCountry(newValue)
+  };
+
   const onAnimationEnd = () => {
+    setReady(true);
     setTimeout(() => setShow(true), 300);
   };
 
   return (
     <QueryClientProvider client={client}>
-      <Header show={show} api={api}/>
-      <WorldView ref={globe} onAnimationEnd={onAnimationEnd}/>
-      <Footer show={show} api={api}/>
+      {ready && <Header show={show} api={api}/>}
+      <WorldView ref={globe} onCountryChange={onCountryChange} onAnimationEnd={onAnimationEnd}/>
+      {ready && <Footer show={show} api={api} country={country}/>}
     </QueryClientProvider>
   );
 }
