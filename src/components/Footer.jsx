@@ -1,7 +1,8 @@
-import {LocateIcon, Maximize, Minimize} from 'lucide-react';
+import {Maximize, Minimize} from 'lucide-react';
 
 import {cn} from '@/lib/utils.js';
 import {Button} from '@/components/ui/button.jsx';
+import LocateButton from '@/components/LocateButton.jsx';
 
 export default function Footer({show = true, api}) {
   return (
@@ -15,7 +16,7 @@ export default function Footer({show = true, api}) {
 
         <div className="ml-auto"/>
 
-        <Button size="icon"><LocateIcon/></Button>
+        <LocateButton api={api}/>
 
         <div className="w-9"/>
 
