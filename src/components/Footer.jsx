@@ -1,4 +1,4 @@
-import {Maximize, Minimize} from 'lucide-react';
+import {Maximize, Minimize, ScanEyeIcon} from 'lucide-react';
 
 import {cn} from '@/lib/utils.js';
 import {Button} from '@/components/ui/button.jsx';
@@ -15,6 +15,10 @@ export default function Footer({show = true, api}) {
         className={cn('flex gap-2 px-8 py-4 transition-[bottom] duration-500 absolute w-full z-10 left-0', show ? '-bottom-0' : '-bottom-20')}>
 
         <div className="ml-auto"/>
+
+        <Button size="icon" onClick={api.moveCloser}>
+          <ScanEyeIcon/>
+        </Button>
 
         <LocateButton api={api}/>
 
