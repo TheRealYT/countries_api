@@ -1,7 +1,7 @@
 import {useCallback, useEffect, useRef, useState} from 'react';
 import Globe from 'react-globe.gl';
 
-export default function WorldView({onAnimationEnd, ref}) {
+export default function WorldView({onCountryChange, onAnimationEnd, ref}) {
   const globeEl = useRef(null);
   const [countries, setCountries] = useState({features: []});
   const [altitude, setAltitude] = useState(0.01);
@@ -40,6 +40,10 @@ export default function WorldView({onAnimationEnd, ref}) {
 
   useEffect(() => {
     selectedRef.current = selected;
+    onCountryChange && onCountryChange(selectedRef.current ? {
+      data: selectedRef.current.poly.properties,
+      coords: selectedRef.current.coords,
+    } : null);
   }, [selected]);
 
   useEffect(() => {
@@ -72,10 +76,6 @@ export default function WorldView({onAnimationEnd, ref}) {
       },
 
       select,
-
-      get country() {
-        return selectedRef.current ? {data: selectedRef.current.poly.properties, coords: selectedRef.current.coords} : null;
-      },
     };
   });
 
