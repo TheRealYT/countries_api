@@ -37,12 +37,11 @@ const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
   useImperativeHandle(ref, () => ({
     resize: onResize,
 
-    search(q) {
+    search(q, keys = ['ADMIN', 'ADM0_A3', 'BRK_A3', 'FORMAL_EN', 'CONTINENT', 'SUBREGION', 'REGION_WB']) {
       if (q === '')
         return [];
 
       q = q.toLowerCase();
-      const keys = ['ADMIN', 'ADM0_A3', 'BRK_A3', 'FORMAL_EN', 'CONTINENT', 'SUBREGION', 'REGION_WB'];
 
       return countries.features.filter(poly => {
         const {properties} = poly;
