@@ -15,7 +15,7 @@ export default function MainContent({show = true, api, country}) {
 
   return (
     <>
-      <Country country={country} isOpen={open}/>
+      <Country country={country} api={api} isOpen={open} onOpenChange={(v) => setOpen(v)}/>
 
       <main
         className={cn('flex gap-2 px-8 py-4 transition-[bottom] duration-500 absolute w-full z-10 left-0', show ? '-bottom-0' : '-bottom-20')}>
