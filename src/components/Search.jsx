@@ -26,7 +26,7 @@ export default function Search({api}) {
 
         {searchResult.map((v) => (
           <Fragment key={v.properties.ADMIN}>
-            <Button className="text-sm w-full" onClick={() => api.select(v)}>
+            <Button className="text-sm w-full" onClick={() => api.select(v, null, true)}>
                   <span
                     className="text-left overflow-hidden w-52 whitespace-nowrap text-ellipsis">{v.properties.ADMIN}</span>
             </Button>

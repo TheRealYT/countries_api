@@ -19,7 +19,7 @@ export default function LocateButton({api}) {
 
     const search = api.search(data, ['WB_A2']);
     if (search.length > 0)
-      return api.select(search[0]);
+      return api.select(search[0], null, true);
   }, [api, data, isSuccess, isRefetching]);
 
   return <Button disabled={isFetching} size="icon" onClick={refetch}>

@@ -17,7 +17,8 @@ function App() {
       setShow(!show);
     },
     search: globe.current.search,
-    select: globe.current.select
+    select: globe.current.select,
+    moveCloser: globe.current.moveCloser,
   };
 
   const onAnimationEnd = () => {
