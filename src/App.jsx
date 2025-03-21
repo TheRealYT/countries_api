@@ -21,6 +21,7 @@ function App() {
     search: globe.current.search,
     select: globe.current.select,
     moveCloser: globe.current.moveCloser,
+    setMarkers: globe.current.setMarkers,
   };
 
   const onCountryChange = (newValue) => {
