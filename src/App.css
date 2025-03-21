@@ -3,3 +3,7 @@
 #root {
   @apply fixed left-0 top-0 size-full;
 }
+
+button {
+  @apply cursor-pointer;
+}
