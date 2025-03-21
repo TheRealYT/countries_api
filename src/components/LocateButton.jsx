@@ -1,8 +1,8 @@
+import {useEffect} from 'react';
 import {Loader2Icon, LocateIcon} from 'lucide-react';
 
 import {Button} from '@/components/ui/button.jsx';
 import {useQuery} from '@tanstack/react-query';
-import {useEffect} from 'react';
 
 export default function LocateButton({api}) {
   const {isFetching, isSuccess, data, refetch, isRefetching} = useQuery({
