@@ -16,13 +16,16 @@ const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
 
   const getHeight = () => parent.current?.offsetHeight;
 
-  const select = (poly, coords = null) => {
+  const select = (poly, coords = null, closerView = false) => {
     if (coords == null) {
       const {bbox} = poly;
       const lat = (bbox[1] + bbox[3]) / 2;
       const lng = (bbox[0] + bbox[2]) / 2;
       coords = {lat, lng};
     }
+
+    if (closerView)
+      coords.altitude = 1;
 
     setAltitude(() => (p) => poly === p ? 0.1 : 0.01);
     setSelected({poly, coords});
@@ -57,8 +60,8 @@ const WorldView = forwardRef(function WorldView({onAnimationEnd}, ref) {
       });
     },
 
-    goTo({lat, lng}) {
-      return globeEl.current.pointOfView({lat, lng, altitude: 1}, 2000);
+    moveCloser() {
+      globeEl.current.pointOfView({...selected.coords, altitude: 1}, 2000);
     },
 
     select,
